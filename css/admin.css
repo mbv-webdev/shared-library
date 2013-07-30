@@ -1,0 +1,116 @@
+
+/* ***********
+   Title-Style
+   *********** */
+#icon-mbv-overview {
+    background: url("../images/mbv_icon_32.png") no-repeat scroll 1px 1px transparent;
+}
+
+/* *****************
+   Main Plugin Style
+   ***************** */
+.installed-plugin {
+	position: relative;
+	margin:  0 -12px 10px -10px;
+	padding: 0  12px 10px  10px;
+
+	border-bottom: 1px solid #dfdfdf;
+}
+
+.plugin-info-left {
+	float: left;
+	width: 15%;
+}
+
+.plugin-info-right {
+	float: right;
+	width: 84%;
+}
+
+.plugin-info-right cite {
+	display: block;
+	padding-top: 18px;
+}
+
+.installed-plugin:last-child {
+	padding-bottom: 0;
+	border-bottom: 0 none;
+}
+
+.installed-plugin .version {
+	position: absolute;
+	left: 10px;
+	bottom: 10px;
+}
+
+.installed-plugin:last-child .version {
+	bottom: 0;
+}
+
+#toplevel_page_mbv-core li.wp-first-item {
+	border-bottom: 1px solid #dfdfdf;
+}
+
+#toplevel_page_mbv-core .wp-submenu li:last-child {
+	border-top: 1px solid #dfdfdf;
+}
+
+/* *****************
+   Sub-Content Style
+   ***************** */
+nav.subcontent-menu {
+	height: 50px;
+}
+
+nav.subcontent-menu li {
+    display: inline-block;
+    float: left;
+    margin-left: 33px;
+    position: relative;
+    text-transform: uppercase;
+}
+
+nav.subcontent-menu li:before {
+    position: absolute;
+    display: inline-block;
+    top: 0;
+    left: -18px;
+
+    content: ":";
+
+    color: #c5c5c5;
+    font-size: 14px;
+	font-weight: bold;
+    line-height: 38px;
+}
+
+nav.subcontent-menu li:first-child:before {
+    content: "";
+    padding: 0 !important;
+}
+
+nav.subcontent-menu li a {
+	color: #5a5a5a;
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 38px;
+	text-decoration: none;
+}
+
+nav.subcontent-menu li a:hover {
+	color: #8d8d8d;
+}
+
+nav.subcontent-menu li.active a {
+	color: #be3932;
+	cursor: default;
+}
+
+.fullwidth-subcontent {
+	position: relative;
+	margin-left: -19px;
+	padding: 10px 0 10px 19px;
+
+	border-bottom: 8px solid #cf2c1d;
+	border-top: 8px solid #cf2c1d;
+}
