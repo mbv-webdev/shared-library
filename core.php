@@ -532,6 +532,90 @@ class MBVCore {
 		return call_user_func_array(array($this->language, 'parse_all_locales'), func_get_args());
 	}
 
+	/**
+	 * 
+	 * 
+	 * http://www.onlineaspect.com/
+	 * http://www.onlineaspect.com/2009/01/26/how-to-use-curl_multi-without-blocking/
+	 *
+	 * @param string $urls
+	 * @param int $max_requests
+	 * @param string $callback
+	 * @param array $custom_options
+	 * @return boolean
+	 */
+	function rolling_curl($urls, $max_requests = 5, $callback = null, $custom_options = null) {
+		// make sure the rolling window isn't greater than the # of urls
+		$rolling_window = 5;
+		if (!empty($max_requests)) {
+			$rolling_window = $max_requests;
+		}
+		$rolling_window = (sizeof($urls) < $rolling_window) ? sizeof($urls) : $rolling_window;
+
+		$master = curl_multi_init();
+
+		// add additional curl options here
+		$std_options = array(
+			CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_FOLLOWLOCATION => true,
+			CURLOPT_MAXREDIRS => 5,
+		);
+		$options = ($custom_options) ? ($custom_options + $std_options) : $std_options;
+
+		// start the first batch of requests
+		for ($i = 0; $i < $rolling_window; $i++) {
+			$ch = curl_init();
+			$options[CURLOPT_URL] = $urls[$i];
+			curl_setopt_array($ch,$options);
+			curl_multi_add_handle($master, $ch);
+		}
+
+		do {
+			while(($execrun = curl_multi_exec($master, $running)) == CURLM_CALL_MULTI_PERFORM);
+
+			if($execrun != CURLM_OK) {
+				break;
+			}
+
+			// a request was just completed -- find out which one
+			while($done = curl_multi_info_read($master)) {
+				$info = curl_getinfo($done['handle']);
+
+				if ($info['http_code'] == 200)  {
+					$output = curl_multi_getcontent($done['handle']);
+
+					// request successful.  process output using the callback function.
+					if (!empty($callback)) {
+						call_user_func($callback, $output, 'success');
+					}
+
+					// start a new request (it's important to do this before removing the old one)
+					++$i;
+
+					if (isset($urls[$i])) {
+						$ch = curl_init();
+						$options[CURLOPT_URL] = $urls[$i];
+
+						curl_setopt_array($ch,$options);
+						curl_multi_add_handle($master, $ch);
+					}
+
+					// remove the curl handle that just completed
+					curl_multi_remove_handle($master, $done['handle']);
+				}
+				else {
+					// request failed.  add error handling.
+					if (!empty($callback)) {
+						call_user_func($callback, $info, 'error');
+					}
+				}
+			}
+		} while ($running);
+
+		curl_multi_close($master);
+
+		return true;
+	}
 
 	/**
 	 * Display the pagination.
