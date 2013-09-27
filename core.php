@@ -456,6 +456,31 @@ class MBVCore {
 	}
 
 	/**
+	 * 
+	 * 
+	 * @param string $function
+	 * @param boolean $ignore_safemode
+	 * @return boolean
+	 */
+	public 	function function_available($function, $ignore_safemode = false) {
+		if (!$ignore_safemode && ini_get('safe_mode')) {
+			return false;
+		}
+		else {
+			$disabled = ini_get('disable_functions');
+			$suhosin  = ini_get('suhosin.executor.func.blacklist');
+
+			$array = preg_split('/,\s*/', $disabled.','.$suhosin);
+
+			if (in_array($function, $array)) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
 	 * version of sprintf for cases where named arguments are desired
 	 *
 	 * with sprintf: sprintf('second: %2$s ; first: %1$s', '1st', '2nd');
