@@ -1,98 +1,103 @@
 <?php
 /**
-* MBV Core Library
-*
-* @package shared-library
-* @author Oliver Gärtner <og@mbv-media.com>
-* @license GPL-3.0+
-* @link http://www.mbv-media.com/
-* @copyright 2013 MBV Media
-*
-* @wordpress-plugin
-* Plugin Name: MBV Core Library
-* Plugin URI: http://www.mbv-media.com/WP-Plugins/
-* Description: 
-* Version: 0.4.0
-* Author: MBV Media | Oliver Gärtner
-* Author URI: http://www.mbv-media.com/
-* License: GPL-3.0+
-* License URI: http://www.gnu.org/licenses/gpl-3.0.txt
-* Text Domain: mbv-core
-* Domain Path: /languages
-*/
+ * MBV Core Library
+ *
+ * @package shared-library
+ * @author Oliver Gärtner <og@mbv-media.com>
+ * @license GPL-3.0+
+ * @link http://www.mbv-media.com/
+ * @copyright 2013 MBV Media
+ *
+ * @wordpress-plugin
+ * Plugin Name: MBV Core Library
+ * Plugin URI: http://www.mbv-media.com/WP-Plugins/
+ * Description: 
+ * Version: 0.8.10
+ * Author: MBV Media | Oliver Gärtner
+ * Author URI: http://www.mbv-media.com/
+ * License: GPL-3.0+
+ * License URI: http://www.gnu.org/licenses/gpl-3.0.txt
+ * Text Domain: mbv-core
+ * Domain Path: /languages
+ */
 
 /**
-* 
-*
-* @package shared-library
-* @author Oliver Gärtner <og@mbv-media.com>
-*/
+ * 
+ *
+ * @package shared-library
+ * @author Oliver Gärtner <og@mbv-media.com>
+ */
 class MBVCore {
 	/**
-	* Plugin version, used for cache-busting of style and script file references.
-	*
-	* @since 0.1.0
-	*
-	* @var string
-	*/
+	 * Plugin version, used for cache-busting of style and script file references.
+	 *
+	 * @since 0.1.0
+	 *
+	 * @var string
+	 */
 	protected $version = '0.1.0';
 
 	/**
-	* Unique identifier for your plugin.
-	*
-	* Use this value (not the variable name) as the text domain when internationalizing strings of text. It should
-	* match the Text Domain file header in the main plugin file.
-	*
-	* @since 0.1.0
-	*
-	* @var string
-	*/
+	 * Unique identifier for your plugin.
+	 *
+	 * Use this value (not the variable name) as the text domain when internationalizing strings of text. It should
+	 * match the Text Domain file header in the main plugin file.
+	 *
+	 * @since 0.1.0
+	 *
+	 * @var string
+	 */
 	protected $plugin_slug = 'mbv-core';
 
 	/**
-	* Instance of this class.
-	*
-	* @since 0.1.0
-	*
-	* @var object
-	*/
+	 * Instance of this class.
+	 *
+	 * @since 0.1.0
+	 *
+	 * @var object
+	 */
 	protected static $instance = null;
 
 	/**
-	* Slug of the plugin screen.
-	*
-	* @since 0.1.0
-	*
-	* @var string
-	*/
+	 * Slug of the plugin screen.
+	 *
+	 * @since 0.1.0
+	 *
+	 * @var string
+	 */
 	protected $plugin_screen_hook_suffix = null;
 
 	/**
-	* Slug of the plugin screen.
-	*
-	* @since 0.2.0
-	*
-	* @var string
-	*/
+	 * Slug of the plugin screen.
+	 *
+	 * @since 0.2.0
+	 *
+	 * @var string
+	 */
 	protected $registered_plugins = array();
 
 	/**
-	 *
-	 * @var type 
+	 * Cache of Terms for Translation
+	 * 
+	 * @since 0.4.0
+	 * @var array 
 	 */
 	protected $terms = array();
 
 	/**
-	 *
-	 * @var type 
+	 * Pointer to Language class instance
+	 * 
+	 * @since 0.4.0
+	 * 
+	 * @var \mbv\Language 
 	 */
 	public $language = null;
 
 	/**
-	* Initialize the plugin by setting localization, filters, and administration functions.
-	*
-	* @since 0.1.0
-	*/
+	 * Initialize the plugin by setting localization, filters, and administration functions.
+	 *
+	 * @since 0.1.0
+	 */
 	private function __construct() {
 		define('MBV_CORE_DIR', dirname(__FILE__));
 		define('MBV_CORE_URL', str_replace(WPMU_PLUGIN_DIR, WPMU_PLUGIN_URL, MBV_CORE_DIR));
@@ -113,12 +118,12 @@ class MBVCore {
 	}
 
 	/**
-	* Return an instance of this class.
-	*
-	* @since 0.1.0
-	*
-	* @return MBVCore A single instance of this class.
-	*/
+	 * Return an instance of this class.
+	 *
+	 * @since 0.1.0
+	 *
+	 * @return MBVCore A single instance of this class.
+	 */
 	public static function get_instance() {
 		// If the single instance hasn't been set, set it now.
 		if (null == self::$instance) {
@@ -370,13 +375,25 @@ class MBVCore {
 	}
    
 	/**
+	 * Function to load TinyMCE
 	 * 
+	 * @since 0.4.0
 	 */
 	public function load_tiny_mce() {
 		// true would give you a stripped down version of the editor
 		wp_tiny_mce(false);
 	}
 
+	/**
+	 * Function to get Term in current language or return default value
+	 * 
+	 * @since 0.4.0
+	 * 
+	 * @param type $option
+	 * @param type $term
+	 * @param type $default
+	 * @return type
+	 */
 	public function get_term($option, $term, $default = '') {
 		if (empty($this->terms[$option])) {
 			$this->terms[$option] = get_option($option);
@@ -402,14 +419,22 @@ class MBVCore {
 	}
 
 	/**
+	 * Function to display a success message of any taken action using a custom message or the
+	 * default set in Wordpress own .mo files
+	 * Utilizes term-translation and replaced embedded placeholders with $_REQUEST variables
+	 * %placeholder$s would e.g. be replaced using $_REQUEST['placeholder']
 	 * 
+	 * @since 0.4.0
 	 */
 	public function display_success_notice($option = '') {
+		// Set default Wordpress saved-message
 		$message = __('Settings saved.');
 		if (!empty($_REQUEST['term'])) {
+			// Get term, or keep saved-message as default
 			$message = $this->get_term($option, urldecode(esc_attr($_REQUEST['term'])), $message);
 		}
 
+		// If term was set but not found, return term as Message
 		if ($message == __('Settings saved.') && !empty($_REQUEST['term'])) {
 			$message = __(urldecode(esc_attr($_REQUEST['term'])), $option);
 
@@ -418,6 +443,7 @@ class MBVCore {
 			}
 		}
 
+		// Parse text placeholders
 		if (strpos($message, '%')) {
 			$message = $this->sprintfn($message, $_REQUEST);
 		}
@@ -429,14 +455,22 @@ class MBVCore {
 	}
 
 	/**
+	 * Function to display a failure message of any taken action using a custom message or the
+	 * default set in Wordpress own .mo files
+	 * Utilizes term-translation and replaced embedded placeholders with $_REQUEST variables
+	 * %placeholder$s would e.g. be replaced using $_REQUEST['placeholder']
 	 * 
+	 * @since 0.4.0
 	 */
 	public function display_fail_notice($option = '') {
+		// Set default Wordpress failed-message
 		$message = __('Error while saving the changes.');
 		if (!empty($_REQUEST['term'])) {
+			// Get term, or keep failed-message as default
 			$message = $this->get_term($option, urldecode(esc_attr($_REQUEST['term'])), $message);
 		}
 
+		// If term was set but not found, return term as Message
 		if ($message == __('Error while saving the changes.') && !empty($_REQUEST['term'])) {
 			$message = __(urldecode(esc_attr($_REQUEST['term'])), $option);
 
@@ -445,6 +479,7 @@ class MBVCore {
 			}
 		}
 
+		// Parse text placeholders
 		if (strpos($message, '%')) {
 			$message = $this->sprintfn($message, $_REQUEST);
 		}
@@ -456,10 +491,14 @@ class MBVCore {
 	}
 
 	/**
+	 * Check, whether a function is allowed to be used.
+	 * Checks agaisnt the compiled disable_functions, suhosin's function blacklist and also checks
+	 * for safe_mode.
 	 * 
+	 * @since 0.8.0
 	 * 
-	 * @param string $function
-	 * @param boolean $ignore_safemode
+	 * @param string $function Name of the function to check
+	 * @param boolean $ignore_safemode Set to true to not take safe_mode into account
 	 * @return boolean
 	 */
 	public 	function function_available($function, $ignore_safemode = false) {
@@ -489,6 +528,8 @@ class MBVCore {
 	 *  'first' => '1st',
 	 *  'second'=> '2nd'
 	 * ));
+	 * 
+	 * @since 0.4.0
 	 *
 	 * @param string $format sprintf format string, with any number of named arguments
 	 * @param array $args array of [ 'arg_name' => 'arg value', ... ] replacements to be made
@@ -533,15 +574,17 @@ class MBVCore {
 	}
 
 	/**
-	 * 
+	 * Asynchronous cURL calls for an array of URLs
+	 *
+	 * @since 0.8.0
 	 * 
 	 * http://www.onlineaspect.com/
 	 * http://www.onlineaspect.com/2009/01/26/how-to-use-curl_multi-without-blocking/
 	 *
-	 * @param string $urls
-	 * @param int $max_requests
-	 * @param string $callback
-	 * @param array $custom_options
+	 * @param array $urls Urls to curl
+	 * @param int $max_requests Maximum number of requrests that may be open at any one time
+	 * @param string $callback Callback, which will be called for each request
+	 * @param array $custom_options CURLOPT options in array form
 	 * @return boolean
 	 */
 	function rolling_curl($urls, $max_requests = 5, $callback = null, $custom_options = null) {
@@ -619,8 +662,9 @@ class MBVCore {
 
 	/**
 	 * Display the pagination.
-	 *
-	 * @since 1.8.0
+	 * 
+	 * @since 0.5.0
+	 * 
      * @author taken from WP core (see includes/class-wp-list-table.php)
 	 * @return string echo the html pagination bar
 	 */

@@ -27,7 +27,7 @@
 		protected static $instance = null;
 
 		/**
-		* 
+		* Path to language flag graphics
 		*
 		* @since 0.2.0
 		*
@@ -36,7 +36,7 @@
 		protected $flags_path = '';
 
 		/**
-		* 
+		* Languages base path
 		*
 		* @since 0.2.0
 		*
@@ -45,7 +45,7 @@
 		protected $language_base = '';
 
 		/**
-		* 
+		* Language subfolder
 		*
 		* @since 0.2.0
 		*
@@ -54,13 +54,16 @@
 		protected $language_path = '/languages';
 
 		/**
+		 * Cache of terms for translation
 		 *
+		 * @since 0.2.0
+		 * 
 		 * @var type 
 		 */
 		protected $terms = array();
 
 		/**
-		* 
+		* Current locale, WPLANG as default
 		*
 		* @since 0.2.0
 		*
@@ -69,7 +72,7 @@
 		protected $locale = WPLANG;
 
 		/**
-		 * 
+		 * Set filter 'locale' when instance is created
 		 */
 		private function __construct() {
 			add_filter('locale', array(&$this, 'set_new_locale'));
@@ -92,6 +95,9 @@
 		}
 
 		/**
+		 * Get list of available languages
+		 *
+		 * @since 0.4.0
 		 * 
 		 * @global object $polylang
 		 * @return \stdClass
@@ -116,6 +122,9 @@
 		}
 
 		/**
+		 * Get currently set language
+		 *
+		 * @since 0.4.0
 		 * 
 		 * @return type
 		 */
@@ -134,6 +143,9 @@
 		}
 
 		/**
+		 * Get path to language flags, depending on which plugins are installed
+		 *
+		 * @since 0.4.0
 		 * 
 		 * @return type
 		 */
@@ -152,6 +164,13 @@
 			return $this->flags_path;
 		}
 
+		/**
+		 * Fetch terms from cached values
+		 *
+		 * @since 0.4.0
+		 * 
+		 * @param string $textdomain
+		 */
 		private function fetch_terms($textdomain = 'default') {
 			$language_list = self::get_language_list();
 
@@ -198,7 +217,9 @@
 		}
 
 		/**
-		 * 
+		 * Set language base path to class variable from outside class
+		 *
+		 * @since 0.4.0
 		 * 
 		 * @param type $base_path
 		 */
@@ -209,7 +230,9 @@
 		}
 
 		/**
-		 * 
+		 * Set language path to class variable from outside class
+		 *
+		 * @since 0.4.0
 		 * 
 		 * @param type $base_path
 		 */
@@ -224,6 +247,8 @@
 		 * of forms with switchable language fields, for example Newsletter error messages, etc.
 		 * Automatically applies vsprintf if more than the two standard parameters for the string
 		 * and the textdomain are passed to the function.
+		 *
+		 * @since 0.4.0
 		 * 
 		 * @global object $polylang Global reference to the $polylang plugin variable
 		 * @global string $locale Current Wordpress locale
@@ -292,6 +317,11 @@
 			return $translated;
 		}
 
+		/**
+		 * Sets new locale
+		 * 
+		 * @return string
+		 */
 		public function set_new_locale() {
 			remove_filter('locale', array(&$this, 'set_new_locale'));
 

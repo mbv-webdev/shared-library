@@ -5,7 +5,8 @@
 	 */
 	class AdminOverview {
 		/**
-		 *
+		 * 
+		 * 
 		 * @var type 
 		 */
 		private $core = null;
