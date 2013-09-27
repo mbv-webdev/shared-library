@@ -515,7 +515,7 @@ class MBVCore {
      * @author taken from WP core (see includes/class-wp-list-table.php)
 	 * @return string echo the html pagination bar
 	 */
-	function pagination( $which, $current, $total_items, $per_page ) {
+	public function pagination( $which, $current, $total_items, $per_page ) {
         $total_pages = ($per_page > 0) ? ceil( $total_items / $per_page ) : 1;
 
 		$output = '<span class="displaying-num">' . sprintf( _n( '1 item', '%s items', $total_items ), number_format_i18n( $total_items ) ) . '</span>';
