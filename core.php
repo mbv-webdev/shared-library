@@ -102,6 +102,11 @@ class MBVCore {
 		define('MBV_CORE_DIR', dirname(__FILE__));
 		define('MBV_CORE_URL', str_replace(WPMU_PLUGIN_DIR, WPMU_PLUGIN_URL, MBV_CORE_DIR));
 
+		// Include AdminPage class, if it wasn't included already (required for some sub-plugins)
+		if (!class_exists('AdminPage') && file_exists(MBV_CORE_DIR.'/includes/adminpage/adminpage.class.php')) {
+			require_once(MBV_CORE_DIR.'/includes/adminpage/adminpage.class.php');
+		}
+
 		// Load plugin text domain
 		add_action('init', array(&$this, 'load_core_textdomain'));
 
