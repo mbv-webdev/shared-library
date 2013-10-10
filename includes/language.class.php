@@ -46,7 +46,7 @@
 
 		/**
 		* Language subfolder
-		*
+		* 
 		* @since 0.2.0
 		*
 		* @var string
@@ -64,7 +64,7 @@
 
 		/**
 		* Current locale, WPLANG as default
-		*
+		* 
 		* @since 0.2.0
 		*
 		* @var string
@@ -72,11 +72,9 @@
 		protected $locale = WPLANG;
 
 		/**
-		 * Set filter 'locale' when instance is created
+		 * Standard constructor
 		 */
-		private function __construct() {
-			add_filter('locale', array(&$this, 'set_new_locale'));
-		}
+		private function __construct() { }
 
 		/**
 		* Return an instance of this class.
@@ -96,7 +94,7 @@
 
 		/**
 		 * Get list of available languages
-		 *
+		 * 
 		 * @since 0.4.0
 		 * 
 		 * @global object $polylang
@@ -105,9 +103,19 @@
 		public function get_language_list() {
 			global $polylang;
 
-			if ($polylang !== null) {
+			if (isset($polylang) && $polylang !== null) {
 				// Get languages from polylang
 				$language_list = $polylang->get_languages_list();
+			}  
+			else if(class_exists('SitePress') && !empty($GLOBALS['sitepress'])) {
+				// Use Sitepress/WPML for translate
+				$language_list = array();
+				$i = 0;
+				foreach ($GLOBALS['sitepress']->get_active_languages() as $value) {
+					$language_list[$i] = new \stdClass();
+					$language_list[$i]->description = str_replace('-', '_', $value['tag']);
+					$i+=1;
+				}
 			}
 			else {
 				// Or set the Wordpress locale as only language
@@ -123,7 +131,7 @@
 
 		/**
 		 * Get currently set language
-		 *
+		 * 
 		 * @since 0.4.0
 		 * 
 		 * @return type
@@ -144,7 +152,7 @@
 
 		/**
 		 * Get path to language flags, depending on which plugins are installed
-		 *
+		 * 
 		 * @since 0.4.0
 		 * 
 		 * @return type
@@ -171,34 +179,47 @@
 		 * 
 		 * @param string $textdomain
 		 */
-		private function fetch_terms($textdomain = 'default') {
+		private function fetch_terms($textdomain = 'default', $default_term = '') {
 			$language_list = self::get_language_list();
 
 			// Get original locale to reset it later on
 			$original_locale = get_locale();
 
 			foreach ($language_list as $language_info) {
+				if (empty($this->terms[$textdomain])) {
+					$this->terms[$textdomain] = array();
+				}
+				
 				// Skip, if we already got this locale loaded
-				if (!empty($this->terms[$textdomain][$this->locale])) {
+				if ($textdomain !== 'default' && !empty($this->terms[$textdomain][$language_info->description])) {
 					continue;
 				}
 
 				// What we need is the description (e.g. en_US)
 				$this->locale = $language_info->description;
-
+				
 				unload_textdomain($textdomain);
 
 				if ($textdomain == 'default') {
+					// Set locale filter for default textdomain in different languages
+					add_filter('locale', array(&$this, 'set_new_locale'));
 					load_default_textdomain();
+
+					if (empty($this->terms[$textdomain][$this->locale])) {
+						$this->terms[$textdomain][$this->locale] = array();
+					}
+				
+					$this->terms[$textdomain][$this->locale][$default_term] = __($default_term);
 				}
 				else {
+					// Non-default languages load language depending on .mo file
 					$language_file = '/'.$textdomain.'-'.$this->locale.'.mo';
 
 					load_textdomain($textdomain, $this->language_base.$this->language_path.$language_file);
 					load_plugin_textdomain($textdomain, false, plugin_basename($this->language_base));
-				}
 
-				$this->terms[$textdomain][$this->locale] = get_translations_for_domain($textdomain);
+					$this->terms[$textdomain][$this->locale] = get_translations_for_domain($textdomain);
+				}
 			}
 
 			// Reset locale to default value
@@ -218,7 +239,7 @@
 
 		/**
 		 * Set language base path to class variable from outside class
-		 *
+		 * 
 		 * @since 0.4.0
 		 * 
 		 * @param type $base_path
@@ -231,7 +252,7 @@
 
 		/**
 		 * Set language path to class variable from outside class
-		 *
+		 * 
 		 * @since 0.4.0
 		 * 
 		 * @param type $base_path
@@ -247,7 +268,7 @@
 		 * of forms with switchable language fields, for example Newsletter error messages, etc.
 		 * Automatically applies vsprintf if more than the two standard parameters for the string
 		 * and the textdomain are passed to the function.
-		 *
+		 * 
 		 * @since 0.4.0
 		 * 
 		 * @global object $polylang Global reference to the $polylang plugin variable
@@ -271,7 +292,7 @@
 				$textdomain = 'default';
 			}
 
-			$this->fetch_terms($textdomain);
+			$this->fetch_terms($textdomain, $l10n_value);
 
 			if (!empty($real_args)) {
 				foreach ($this->terms[$textdomain] as $language => $current_terms) {
@@ -294,23 +315,44 @@
 
 						if ($subdomain != $textdomain) {
 							if (empty($this->terms[$subdomain])) {
-								$this->fetch_terms($subdomain);
+								$this->fetch_terms($subdomain, $l10n_sub);
 							}
 
 							$sub_terms = $this->terms[$subdomain][$language];
-							$parsed_args[] = $sub_terms->translate($l10n_sub);
+
+							if ($subdomain == 'default') {
+								$parsed_args[] = $sub_terms[$l10n_sub];
+							}
+							else {
+								$parsed_args[] = $sub_terms->translate($l10n_sub);
+							}
 						}
 						else {
-							$parsed_args[] = $current_terms->translate($l10n_sub);
+							if ($textdomain == 'default') {
+								$parsed_args[] = $current_terms[$l10n_sub];
+							}
+							else {
+								$parsed_args[] = $current_terms->translate($l10n_sub);
+							}
 						}
 					}
 
-					$translated[$language] = vsprintf($current_terms->translate($l10n_value), $parsed_args);
+					if ($textdomain == 'default') {
+						$translated[$language] = vsprintf($current_terms[$l10n_value], $parsed_args);
+					}
+					else {
+						$translated[$language] = vsprintf($current_terms->translate($l10n_value), $parsed_args);
+					}
 				}
 			}
 			else {
 				foreach ($this->terms[$textdomain] as $language => $current_terms) {
-					$translated[$language] = $current_terms->translate($l10n_value);
+					if ($textdomain == 'default') {
+						$translated[$language] = $current_terms[$l10n_value];
+					}
+					else {
+						$translated[$language] = $current_terms->translate($l10n_value);
+					}
 				}
 			}
 
