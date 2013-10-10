@@ -106,7 +106,7 @@ class MBVCore {
 		add_action('init', array(&$this, 'load_core_textdomain'));
 
 		// Load TinyMCE
-		add_action("admin_head", array(&$this, 'load_tiny_mce'));
+		#add_action("admin_head", array(&$this, 'load_tiny_mce'));
 
 		// Add the options page and menu item.
 		add_action('admin_menu', array(&$this, 'add_core_admin_menu'));
@@ -380,8 +380,12 @@ class MBVCore {
 	 * @since 0.4.0
 	 */
 	public function load_tiny_mce() {
+		/**
+		 * Loaded in Header - Why?
+		 * Disabled for now
+		 */
 		// true would give you a stripped down version of the editor
-		wp_tiny_mce(false);
+		#wp_tiny_mce(false);
 	}
 
 	/**
