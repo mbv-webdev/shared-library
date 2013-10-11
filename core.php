@@ -107,6 +107,9 @@ class MBVCore {
 			require_once(MBV_CORE_DIR.'/includes/adminpage/adminpage.class.php');
 		}
 
+		require_once(MBV_CORE_DIR.'/includes/language.class.php');
+		$this->language = \mbv\Language::get_instance();
+
 		// Load plugin text domain
 		add_action('init', array(&$this, 'load_core_textdomain'));
 
@@ -281,7 +284,7 @@ class MBVCore {
 	 * @param type $which
 	 */
 	public function load_dependencies($which = 'page') {
-		switch ($which) {
+		/*switch ($which) {
 			case 'admin':
 				require_once(MBV_CORE_DIR.'/includes/language.class.php');
 				require_once(MBV_CORE_DIR.'/includes/adminpage/adminpage.class.php');
@@ -291,7 +294,7 @@ class MBVCore {
 
 			default:
 				// For pages
-		}
+		}*/
 	}
 
 	/**
